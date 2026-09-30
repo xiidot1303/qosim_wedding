@@ -1,0 +1,576 @@
+/* ---------- Shared type ---------- */
+.kicker {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-left: 0.42em; /* balance trailing tracking */
+}
+
+.h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(30px, 8vw, 40px);
+  line-height: 1.15;
+  margin-top: 22px;
+}
+
+.sub {
+  margin-top: 10px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.lead {
+  font-family: var(--serif);
+  font-size: clamp(21px, 5.4vw, 25px);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 30em;
+  margin: 26px auto 0;
+}
+
+/* ---------- Cover ---------- */
+.cover {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+}
+
+.panelTop,
+.panelBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: var(--paper);
+  transition: transform 1.3s cubic-bezier(0.7, 0, 0.2, 1) 0.35s;
+}
+.panelTop {
+  top: 0;
+  border-bottom: 1px solid transparent;
+}
+.panelBottom {
+  bottom: 0;
+}
+
+.coverContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+  transition: opacity 0.5s ease, transform 0.6s ease;
+}
+.coverContent > * {
+  animation: fadeUp 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.coverContent > :nth-child(2) {
+  animation-delay: 0.15s;
+}
+.coverContent > :nth-child(3) {
+  animation-delay: 0.3s;
+}
+.coverContent > :nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+.monogram {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin: 34px 0 30px;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 88px;
+  line-height: 1;
+}
+.monogram i {
+  display: block;
+  width: 1px;
+  height: 84px;
+  background: var(--accent);
+  transform: rotate(18deg);
+}
+
+.coverGuest {
+  font-family: var(--serif);
+  font-size: 22px;
+  color: var(--ink-soft);
+}
+.coverGuest em {
+  display: block;
+  margin-top: 4px;
+  font-size: 30px;
+  color: var(--ink);
+}
+
+.openBtn {
+  margin-top: 44px;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  padding-left: 0.32em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s, color 0.3s;
+}
+.openBtn::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  animation: pulse 2.6s ease-out infinite;
+}
+.openBtn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.coverOpen {
+  pointer-events: none;
+}
+.coverOpen .coverContent {
+  opacity: 0;
+  transform: scale(0.97);
+}
+.coverOpen .panelTop {
+  transform: translateY(-101%);
+}
+.coverOpen .panelBottom {
+  transform: translateY(101%);
+}
+
+/* ---------- Hero ---------- */
+.main {
+  text-align: center;
+}
+
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px 120px;
+  position: relative;
+}
+
+.rings {
+  width: 96px;
+  margin-bottom: 30px;
+}
+.rings circle {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 0.9;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+}
+.opened .rings circle {
+  animation: draw 2.4s cubic-bezier(0.6, 0, 0.2, 1) 1.2s forwards;
+}
+.opened .rings circle + circle {
+  animation-delay: 1.6s;
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 26px 0 34px;
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: clamp(56px, 17vw, 118px);
+  line-height: 1.12;
+}
+.names span,
+.heroDate {
+  opacity: 0;
+}
+.opened .names span {
+  animation: fadeUp 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) 1.1s both;
+}
+.opened .names span:nth-child(2) {
+  animation-delay: 1.3s;
+}
+.opened .names span:nth-child(3) {
+  animation-delay: 1.5s;
+}
+.amp {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.5em;
+  line-height: 1;
+  color: var(--accent);
+}
+.amp::before,
+.amp::after {
+  content: '';
+  width: 56px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.heroDate {
+  font-size: 14px;
+  letter-spacing: 0.4em;
+  padding-left: 0.4em;
+}
+.opened .heroDate {
+  animation: fadeUp 1.4s ease 1.8s both;
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  width: 1px;
+  height: 56px;
+  background: var(--line);
+  overflow: hidden;
+}
+.scrollHint::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -20px;
+  width: 1px;
+  height: 20px;
+  background: var(--ink);
+  animation: scroll 2.2s ease-in-out infinite;
+}
+
+/* ---------- Sections ---------- */
+.section {
+  padding: 96px 22px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.sectionTint {
+  max-width: none;
+  background: var(--paper-2);
+}
+
+.guestName {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(34px, 9vw, 46px);
+  line-height: 1.15;
+  margin-top: 22px;
+}
+
+.divider {
+  width: 1px;
+  height: 64px;
+  margin: 0 auto;
+  background: var(--line);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal[data-shown] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Calendar ---------- */
+.calendar {
+  margin: 32px auto 0;
+  max-width: 340px;
+}
+.calTitle {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 30px;
+  margin-bottom: 22px;
+}
+.calTitle span {
+  color: var(--muted);
+}
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 10px;
+}
+.calHead {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: 8px;
+}
+.calDay,
+.calDayActive {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 36px;
+  color: var(--ink-soft);
+  position: relative;
+}
+.calDayActive {
+  color: var(--ink);
+  font-weight: 500;
+}
+.calCircle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 50px;
+  height: 50px;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  overflow: visible;
+}
+.calCircle path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-dasharray: 170;
+  stroke-dashoffset: 170;
+  transition: stroke-dashoffset 1.6s cubic-bezier(0.6, 0, 0.2, 1) 0.6s;
+}
+.reveal[data-shown] .calCircle path {
+  stroke-dashoffset: 0;
+}
+
+.when {
+  margin-top: 30px;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.when b {
+  color: var(--accent);
+  font-weight: 400;
+  margin: 0 0.3em;
+}
+
+/* ---------- Countdown ---------- */
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: clamp(18px, 6vw, 44px);
+  margin-top: 30px;
+}
+.unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 52px;
+}
+.num {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(44px, 12vw, 64px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.unitLabel {
+  margin-top: 10px;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.celebrate {
+  margin-top: 24px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 34px;
+}
+
+/* ---------- Map & buttons ---------- */
+.map {
+  margin: 34px auto 0;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  padding: 6px;
+  background: #fff;
+}
+.map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  filter: grayscale(0.85) contrast(1.02);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.btn,
+.btnActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 170px;
+  padding: 15px 22px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.btn:hover,
+.btnActive {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn:disabled,
+.btnActive:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.note {
+  margin-top: 22px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 21px;
+  color: var(--ink-soft);
+}
+
+/* ---------- Closing ---------- */
+.closing .lead {
+  margin: 0 auto 40px;
+  font-style: italic;
+}
+.family {
+  margin-top: 14px;
+  font-family: var(--script);
+  font-size: clamp(40px, 11vw, 54px);
+  line-height: 1.2;
+}
+.link {
+  display: inline-block;
+  margin-top: 40px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--accent);
+}
+
+.footer {
+  padding: 40px 20px 56px;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: var(--muted);
+}
+
+/* ---------- Music toggle ---------- */
+.music {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 40;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(250, 248, 244, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  animation: fadeUp 0.8s ease 1.4s both;
+}
+.music span {
+  display: block;
+  width: 2px;
+  height: 4px;
+  background: var(--ink);
+  transition: height 0.3s;
+}
+.musicOn span {
+  animation: bars 1.1s ease-in-out infinite;
+}
+.musicOn span:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.musicOn span:nth-child(3) {
+  animation-delay: 0.5s;
+}
+.musicOn span:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+@keyframes scroll {
+  0% {
+    top: -20px;
+  }
+  100% {
+    top: 56px;
+  }
+}
+@keyframes bars {
+  0%,
+  100% {
+    height: 4px;
+  }
+  50% {
+    height: 16px;
+  }
+}
