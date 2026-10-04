@@ -166,8 +166,8 @@ export default function Admin() {
 
       {loaded && isLocal && (
         <p className={s.warning}>
-          QR kodlar hozir <b>{baseUrl}</b> manziliga olib boradi. Chop etishdan oldin saytni internetga joylang va{' '}
-          <code>SITE_URL</code> ni haqiqiy domen bilan sozlang.
+          Mehmon havolalari hozir <b>{baseUrl}</b> manziliga olib boradi. Havolalarni yuborishdan oldin saytni internetga
+          joylang va <code>SITE_URL</code> ni haqiqiy domen bilan sozlang.
         </p>
       )}
 

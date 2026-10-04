@@ -10,6 +10,6 @@ export async function GET(request, { params }) {
     name,
     url: `${getBaseUrl(request)}/`,
     design,
-    headers: { 'Cache-Control': 'public, max-age=300' },
+    headers: { 'Cache-Control': 'no-store' },
   });
 }
