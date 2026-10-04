@@ -1,9 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { wedding } from '@/lib/config';
 import { createCanon, createFilePlayer } from '@/lib/canon';
 import s from './invitation.module.css';
+import venuePhoto from './venue.jpg';
 
 const { venue } = wedding;
 const initial = (name) => name.charAt(0).toUpperCase();
@@ -203,8 +205,6 @@ export default function Invitation({ guest, musicSrc }) {
     setOpened(true);
   };
 
-  const mapSrc = `https://maps.google.com/maps?q=${venue.lat},${venue.lng}&z=16&hl=uz&output=embed`;
-
   return (
     <>
       <div className={`${s.cover} ${opened ? s.coverOpen : ''}`} aria-hidden={opened}>
@@ -266,8 +266,8 @@ export default function Invitation({ guest, musicSrc }) {
           <p className={s.kicker}>Manzil</p>
           <h2 className={s.h2}>{venue.name}</h2>
           <p className={s.sub}>{venue.city}</p>
-          <div className={s.map}>
-            <iframe src={mapSrc} title={venue.name} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+          <div className={s.photo}>
+            <Image src={venuePhoto} alt={venue.name} placeholder="blur" sizes="(max-width: 640px) 100vw, 600px" />
           </div>
           <div className={s.buttons}>
             <a className={s.btn} href={venue.google} target="_blank" rel="noopener noreferrer">
