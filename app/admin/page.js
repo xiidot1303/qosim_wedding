@@ -18,6 +18,11 @@ function parseList(text) {
 // Keep the guest's name as the file name; drop only characters Windows forbids.
 const safeFile = (name) => name.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').trim() || 'mehmon';
 
+// Show API failures to the admin; a 401 already redirects to login.
+function report(e) {
+  if (e.message !== 'unauthorized') alert(e.message);
+}
+
 function saveBlob(blob, fileName) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -55,7 +60,14 @@ export default function Admin() {
       router.replace('/admin/login');
       throw new Error('unauthorized');
     }
-    return res.json();
+    // Error responses may be empty or HTML, so never assume JSON.
+    const text = await res.text();
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {}
+    if (!res.ok) throw new Error(data.error || `Server xatosi (${res.status})`);
+    return data;
   }, [router]);
 
   const load = useCallback(
@@ -69,7 +81,7 @@ export default function Admin() {
   );
 
   useEffect(() => {
-    load().catch(() => {});
+    load().catch(report);
   }, [load]);
 
   const names = useMemo(() => parseList(text), [text]);
@@ -86,6 +98,8 @@ export default function Admin() {
       setText('');
       flash(`${added.length} ta mehmon qo‘shildi`);
       await load();
+    } catch (e) {
+      report(e);
     } finally {
       setBusy(false);
     }
@@ -102,18 +116,26 @@ export default function Admin() {
   const rename = async (guest, name) => {
     setEditing(null);
     if (!name.trim() || name.trim() === guest.name) return;
-    await api(`/api/admin/guests/${guest.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
-    await load();
+    try {
+      await api(`/api/admin/guests/${guest.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      await load();
+    } catch (e) {
+      report(e);
+    }
   };
 
   const remove = async (guest) => {
-    if (!confirm(`«${guest.name}» o‘chirilsinmi? Uning QR kodi ishlamay qoladi.`)) return;
-    await api(`/api/admin/guests/${guest.id}`, { method: 'DELETE' });
-    await load();
+    if (!confirm(`«${guest.name}» o‘chirilsinmi? Uning havolasi ishlamay qoladi.`)) return;
+    try {
+      await api(`/api/admin/guests/${guest.id}`, { method: 'DELETE' });
+      await load();
+    } catch (e) {
+      report(e);
+    }
   };
 
   const copy = async (guest) => {

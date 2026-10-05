@@ -46,4 +46,12 @@ To use your own song, put it at `public/music.mp3` and rebuild. Browsers only al
 
 ## Hosting
 
-Guests are stored in `data/guests.json`, so the app needs a server with a persistent disk (a VPS, Railway or Render with a volume, etc.). Serverless hosts such as Vercel don't keep files between requests. Back up `data/guests.json`: deleting it breaks every guest link already sent.
+Locally, guests are stored in `data/guests.json`.
+
+**Vercel** has a read-only filesystem, so guests must be stored in Upstash Redis:
+
+1. Vercel dashboard → your project → **Storage** → **Create Database** → **Upstash for Redis** (free plan) → connect it to the project for all environments. This adds `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically. `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` also work.
+2. Settings → Environment Variables: set `ADMIN_PASSWORD`, `SESSION_SECRET` and `SITE_URL` (e.g. `https://qosim-wedding.vercel.app`).
+3. Redeploy.
+
+When those Redis variables are present, the app uses Redis everywhere, including locally if you put them in `.env.local`.
