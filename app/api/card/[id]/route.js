@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
   if (!guest) return new Response('Not found', { status: 404 });
 
   const search = request.nextUrl.searchParams;
-  const fileName = `taklifnoma-${guest.name.replace(/[^\p{L}\p{N}]+/gu, '_')}.png`;
+  const fileName = `${guest.name.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').trim() || 'taklifnoma'}.png`;
 
   return renderCard({
     name: guest.name,

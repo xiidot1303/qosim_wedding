@@ -157,6 +157,12 @@
   background: var(--ink);
   color: var(--paper);
 }
+.ghost:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
+  color: inherit;
+}
 
 .listHead {
   display: flex;

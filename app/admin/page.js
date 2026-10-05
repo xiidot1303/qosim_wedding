@@ -15,7 +15,16 @@ function parseList(text) {
     .filter((name, i) => name && !(i === 0 && HEADERS.has(name.toLowerCase())));
 }
 
-const safeFile = (name) => name.replace(/[^\p{L}\p{N}]+/gu, '_');
+// Keep the guest's name as the file name; drop only characters Windows forbids.
+const safeFile = (name) => name.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').trim() || 'mehmon';
+
+function saveBlob(blob, fileName) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -115,20 +124,32 @@ export default function Admin() {
   const downloadAll = async () => {
     const { default: JSZip } = await import('jszip');
     const zip = new JSZip();
-    for (let i = 0; i < guests.length; i++) {
-      setZipProgress(`${i + 1} / ${guests.length}`);
-      const g = guests[i];
-      const res = await fetch(`/api/card/${g.id}`, { cache: 'no-store' });
-      zip.file(`${String(i + 1).padStart(3, '0')}-${safeFile(g.name)}.png`, await res.blob());
+    const used = new Map();
+    try {
+      for (let i = 0; i < guests.length; i++) {
+        setZipProgress(`${i + 1} / ${guests.length}`);
+        const g = guests[i];
+        const res = await fetch(`/api/card/${g.id}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`${g.name}: ${res.status}`);
+        // Two guests with the same name get "Name (2).png" instead of overwriting each other.
+        const base = safeFile(g.name);
+        const n = (used.get(base.toLowerCase()) ?? 0) + 1;
+        used.set(base.toLowerCase(), n);
+        zip.file(n > 1 ? `${base} (${n}).png` : `${base}.png`, await res.blob());
+      }
+      setZipProgress('ZIP…');
+      saveBlob(await zip.generateAsync({ type: 'blob' }), 'taklifnomalar.zip');
+    } catch (e) {
+      alert(`Kartalarni yuklab bo‘lmadi: ${e.message}`);
+    } finally {
+      setZipProgress(null);
     }
-    setZipProgress('ZIP…');
-    const blob = await zip.generateAsync({ type: 'blob' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'taklifnomalar.zip';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    setZipProgress(null);
+  };
+
+  const downloadLinks = () => {
+    const lines = guests.map((g) => `${g.name} — ${baseUrl}/i/${g.id}`);
+    // BOM so Windows Notepad shows Cyrillic names correctly.
+    saveBlob(new Blob(['\uFEFF' + lines.join('\r\n') + '\r\n'], { type: 'text/plain;charset=utf-8' }), 'mehmon-havolalari.txt');
   };
 
   const logout = async () => {
@@ -215,6 +236,9 @@ export default function Admin() {
         <div className={s.listHead}>
           <h2 className={s.h2}>Ro‘yxat</h2>
           <input className={s.search} placeholder="Qidirish…" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <button className={s.ghost} disabled={!guests.length} onClick={downloadLinks}>
+            Havolalar (TXT)
+          </button>
           <button className={s.primary} disabled={!guests.length || zipProgress} onClick={downloadAll}>
             {zipProgress ? `Tayyorlanmoqda ${zipProgress}` : 'Barcha kartalar (ZIP)'}
           </button>
