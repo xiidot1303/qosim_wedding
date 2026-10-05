@@ -30,7 +30,7 @@ Set `SITE_URL` to the real domain **before** downloading cards for print.
 ## How it works
 
 - `/admin`: add guests (one name per line, or upload a `.txt` / `.csv`). For each guest you can preview the card, download it as PNG, copy the link, or open the page. **Barcha kartalar (ZIP)** downloads every card at once. The panel also shows who opened their invitation and who answered the RSVP.
-- `/api/card/<id>`: a 1200×1800 PNG (10×15 cm at 300 dpi) in the design set by `cardDesign` in `lib/config.js` (currently #13 Marmar): the guest name, one invitation line, the couple's names, the date, the restaurant and «Murodovlar xonadoni». Other designs include a QR code that opens the guest's page.
+- `/api/card/<id>`: a 1200×1800 PNG (10×15 cm at 300 dpi) in the design set by `cardDesign` in `lib/config.js` (currently #13 Marmar): the guest name, one invitation line, the couple's names, the date, the restaurant and «Murodovlar oilasi». Other designs include a QR code that opens the guest's page.
 - `/demo`: preview of all 50 card designs.
 - `/i/<id>`: the guest's personal invitation page, with music, a calendar, a countdown, the map (Google and Yandex), RSVP, and add-to-calendar.
 - `/`: the same page without a guest name.
