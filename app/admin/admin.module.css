@@ -257,6 +257,19 @@
 .actions a:hover {
   border-color: var(--ink);
 }
+.actions .send {
+  border-color: #2aabee;
+  color: #1c8fd0;
+}
+.actions .send:hover {
+  background: #2aabee;
+  border-color: #2aabee;
+  color: #fff;
+}
+.actions .send:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
 .actions .danger:hover {
   border-color: #9a4a3c;
   color: #9a4a3c;

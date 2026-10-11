@@ -48,6 +48,7 @@ export default function Admin() {
   const [preview, setPreview] = useState(null);
   const [zipProgress, setZipProgress] = useState(null);
   const [toast, setToast] = useState('');
+  const [sending, setSending] = useState(null);
 
   const flash = (msg) => {
     setToast(msg);
@@ -135,6 +136,19 @@ export default function Admin() {
       await load();
     } catch (e) {
       report(e);
+    }
+  };
+
+  const sendTelegram = async (guest) => {
+    setSending(guest.id);
+    try {
+      await api(`/api/admin/guests/${guest.id}/telegram`, { method: 'POST' });
+      flash(`«${guest.name}» Telegramga yuborildi`);
+      await load();
+    } catch (e) {
+      report(e);
+    } finally {
+      setSending(null);
     }
   };
 
@@ -298,12 +312,16 @@ export default function Admin() {
                   )}
                   {g.rsvp === 'yes' && <span className={s.tagOk}>Keladi</span>}
                   {g.rsvp === 'no' && <span className={s.tagNo}>Kelmaydi</span>}
+                  {g.telegramSentAt && <span className={s.tagOk}>Telegram ✓ {formatDate(g.telegramSentAt)}</span>}
                 </div>
               </div>
               <div className={s.actions}>
                 <button onClick={() => setPreview(g)}>Karta</button>
                 <a href={`/api/card/${g.id}?download`}>PNG</a>
                 <button onClick={() => copy(g)}>Havola</button>
+                <button onClick={() => sendTelegram(g)} disabled={sending !== null} className={s.send}>
+                  {sending === g.id ? 'Yuborilmoqda…' : 'Telegram'}
+                </button>
                 <a href={`/i/${g.id}`} target="_blank">
                   Ochish
                 </a>

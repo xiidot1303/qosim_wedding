@@ -5,6 +5,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     '/api/card/*': ['./assets/fonts/**/*'],
     '/api/demo-card/*': ['./assets/fonts/**/*'],
+    '/api/admin/guests/*/telegram': ['./assets/fonts/**/*'],
     '/i/*': ['./public/music.mp3'],
   },
 };
