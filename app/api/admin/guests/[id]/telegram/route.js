@@ -10,10 +10,10 @@ export const POST = withErrors(async function POST(request, { params }) {
   if (!guest) return Response.json({ error: 'Topilmadi' }, { status: 404 });
 
   const url = inviteUrl(getBaseUrl(request), guest.id);
-  const card = await renderCard({ name: guest.name, url });
+  const card = await renderCard({ name: guest.name, url, event: guest.event });
   const png = await card.arrayBuffer();
 
-  await sendInvitation({ name: guest.name, url, png });
+  await sendInvitation({ name: guest.name, url, png, event: guest.event });
   const updated = await updateGuest(id, { telegramSentAt: new Date().toISOString() });
   return Response.json({ guest: updated });
 });

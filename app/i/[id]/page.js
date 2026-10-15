@@ -17,5 +17,5 @@ export default async function GuestInvitation({ params }) {
   // Count the visit after responding, so a storage hiccup never breaks the page.
   after(() => markOpened(id).catch((e) => console.error('markOpened failed', e)));
 
-  return <Invitation guest={{ id: guest.id, name: guest.name, rsvp: guest.rsvp }} musicSrc={musicSrc()} />;
+  return <Invitation guest={{ id: guest.id, name: guest.name, rsvp: guest.rsvp }} eventKey={guest.event} musicSrc={musicSrc()} />;
 }

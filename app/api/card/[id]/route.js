@@ -14,6 +14,7 @@ export async function GET(request, { params }) {
     name: guest.name,
     url: inviteUrl(getBaseUrl(request), guest.id),
     design: search.get('design'),
+    event: guest.event,
     headers: {
       'Cache-Control': 'no-store',
       ...(search.has('download') && {

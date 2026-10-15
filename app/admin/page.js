@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { wedding } from '@/lib/config';
+import { EVENT_KEYS, events, wedding } from '@/lib/config';
 import s from './admin.module.css';
 
 const HEADERS = new Set(['name', 'names', 'ism', 'ismi', 'mehmon', 'fio', 'имя']);
@@ -49,6 +49,7 @@ export default function Admin() {
   const [zipProgress, setZipProgress] = useState(null);
   const [toast, setToast] = useState('');
   const [sending, setSending] = useState(null);
+  const [eventKey, setEventKey] = useState('toy');
 
   const flash = (msg) => {
     setToast(msg);
@@ -94,7 +95,7 @@ export default function Admin() {
       const { added } = await api('/api/admin/guests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ names }),
+        body: JSON.stringify({ names, event: eventKey }),
       });
       setText('');
       flash(`${added.length} ta mehmon qo‘shildi`);
@@ -162,9 +163,9 @@ export default function Admin() {
     const zip = new JSZip();
     const used = new Map();
     try {
-      for (let i = 0; i < guests.length; i++) {
-        setZipProgress(`${i + 1} / ${guests.length}`);
-        const g = guests[i];
+      for (let i = 0; i < list.length; i++) {
+        setZipProgress(`${i + 1} / ${list.length}`);
+        const g = list[i];
         const res = await fetch(`/api/card/${g.id}`, { cache: 'no-store' });
         if (!res.ok) throw new Error(`${g.name}: ${res.status}`);
         // Two guests with the same name get "Name (2).png" instead of overwriting each other.
@@ -174,7 +175,7 @@ export default function Admin() {
         zip.file(n > 1 ? `${base} (${n}).png` : `${base}.png`, await res.blob());
       }
       setZipProgress('ZIP…');
-      saveBlob(await zip.generateAsync({ type: 'blob' }), 'taklifnomalar.zip');
+      saveBlob(await zip.generateAsync({ type: 'blob' }), `taklifnomalar-${eventKey}.zip`);
     } catch (e) {
       alert(`Kartalarni yuklab bo‘lmadi: ${e.message}`);
     } finally {
@@ -183,9 +184,9 @@ export default function Admin() {
   };
 
   const downloadLinks = () => {
-    const lines = guests.map((g) => `${g.name} — ${baseUrl}/i/${g.id}`);
+    const lines = list.map((g) => `${g.name} — ${baseUrl}/i/${g.id}`);
     // BOM so Windows Notepad shows Cyrillic names correctly.
-    saveBlob(new Blob(['\uFEFF' + lines.join('\r\n') + '\r\n'], { type: 'text/plain;charset=utf-8' }), 'mehmon-havolalari.txt');
+    saveBlob(new Blob(['\uFEFF' + lines.join('\r\n') + '\r\n'], { type: 'text/plain;charset=utf-8' }), `mehmon-havolalari-${eventKey}.txt`);
   };
 
   const logout = async () => {
@@ -193,12 +194,14 @@ export default function Admin() {
     router.replace('/admin/login');
   };
 
-  const filtered = guests.filter((g) => g.name.toLowerCase().includes(query.trim().toLowerCase()));
+  // Everything below works on the selected event's guests only.
+  const list = guests.filter((g) => g.event === eventKey);
+  const filtered = list.filter((g) => g.name.toLowerCase().includes(query.trim().toLowerCase()));
   const stats = {
-    total: guests.length,
-    opened: guests.filter((g) => g.views > 0).length,
-    yes: guests.filter((g) => g.rsvp === 'yes').length,
-    no: guests.filter((g) => g.rsvp === 'no').length,
+    total: list.length,
+    opened: list.filter((g) => g.views > 0).length,
+    yes: list.filter((g) => g.rsvp === 'yes').length,
+    no: list.filter((g) => g.rsvp === 'no').length,
   };
   const isLocal = /localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.|10\.\d/.test(baseUrl);
 
@@ -220,6 +223,18 @@ export default function Admin() {
           </button>
         </div>
       </header>
+
+      <nav className={s.tabs}>
+        {EVENT_KEYS.map((key) => (
+          <button key={key} className={key === eventKey ? s.tabActive : s.tab} onClick={() => setEventKey(key)}>
+            {events[key].label}
+            <small>
+              {events[key].day} {events[key].month.toLowerCase()}, {events[key].time} ·{' '}
+              {guests.filter((g) => g.event === key).length} ta
+            </small>
+          </button>
+        ))}
+      </nav>
 
       {loaded && isLocal && (
         <p className={s.warning}>
@@ -248,7 +263,7 @@ export default function Admin() {
       </section>
 
       <section className={s.card}>
-        <h2 className={s.h2}>Mehmon qo‘shish</h2>
+        <h2 className={s.h2}>Mehmon qo‘shish — {events[eventKey].label}</h2>
         <p className={s.hint}>Har bir qatorga bitta ism yozing yoki .txt / .csv fayl yuklang (Excel → «CSV sifatida saqlash»).</p>
         <textarea
           className={s.textarea}
@@ -272,15 +287,15 @@ export default function Admin() {
         <div className={s.listHead}>
           <h2 className={s.h2}>Ro‘yxat</h2>
           <input className={s.search} placeholder="Qidirish…" value={query} onChange={(e) => setQuery(e.target.value)} />
-          <button className={s.ghost} disabled={!guests.length} onClick={downloadLinks}>
+          <button className={s.ghost} disabled={!list.length} onClick={downloadLinks}>
             Havolalar (TXT)
           </button>
-          <button className={s.primary} disabled={!guests.length || zipProgress} onClick={downloadAll}>
+          <button className={s.primary} disabled={!list.length || zipProgress} onClick={downloadAll}>
             {zipProgress ? `Tayyorlanmoqda ${zipProgress}` : 'Barcha kartalar (ZIP)'}
           </button>
         </div>
 
-        {loaded && !guests.length && <p className={s.empty}>Hali mehmon qo‘shilmagan.</p>}
+        {loaded && !list.length && <p className={s.empty}>Hali mehmon qo‘shilmagan.</p>}
 
         <ul className={s.list}>
           {filtered.map((g) => (

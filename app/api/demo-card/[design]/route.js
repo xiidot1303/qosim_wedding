@@ -10,6 +10,7 @@ export async function GET(request, { params }) {
     name,
     url: `${getBaseUrl(request)}/`,
     design,
+    event: request.nextUrl.searchParams.get('event'),
     headers: { 'Cache-Control': 'no-store' },
   });
 }

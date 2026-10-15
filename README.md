@@ -31,6 +31,7 @@ Set `SITE_URL` to the real domain **before** downloading cards for print.
 
 ## How it works
 
+- Two events: **To‘y** (23 Oct, «Fotima Sultan») and **Nahor oshi** (22 Oct, «Amir»). In `/admin` each has its own tab and guest list; a guest's card, page, Telegram message and calendar file follow their event. Event details are in `lib/config.js` (`wedding`, `nahor`, `events`).
 - `/admin`: add guests (one name per line, or upload a `.txt` / `.csv`). For each guest you can preview the card, download it as PNG, copy the link, or open the page. **Barcha kartalar (ZIP)** downloads every card at once. The panel also shows who opened their invitation and who answered the RSVP. **Telegram** sends the guest's card to `TELEGRAM_CHAT_ID` with the link and an inline «Taklifnomani ochish» button.
 - `/api/card/<id>`: a 1200×1800 PNG (10×15 cm at 300 dpi) in the design set by `cardDesign` in `lib/config.js` (currently #13 Marmar): the guest name, one invitation line, the couple's names, the date, the restaurant and «Murodovlar oilasi». Other designs include a QR code that opens the guest's page.
 - `/demo`: preview of all 50 card designs.

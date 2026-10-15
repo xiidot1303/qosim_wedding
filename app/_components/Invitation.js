@@ -2,12 +2,11 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import { wedding } from '@/lib/config';
+import { getEvent } from '@/lib/config';
 import { createCanon, createFilePlayer } from '@/lib/canon';
 import s from './invitation.module.css';
 import venuePhoto from './venue.jpg';
 
-const { venue } = wedding;
 const initial = (name) => name.charAt(0).toUpperCase();
 
 function useMusic(src) {
@@ -69,15 +68,15 @@ function Rings() {
   );
 }
 
-function Calendar() {
-  const first = new Date(wedding.year, 9, 1); // October
+function Calendar({ ev }) {
+  const first = new Date(ev.year, 9, 1); // October
   const offset = (first.getDay() + 6) % 7; // Monday first
-  const days = new Date(wedding.year, 10, 0).getDate();
+  const days = new Date(ev.year, 10, 0).getDate();
   const cells = [...Array(offset).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
   return (
     <div className={s.calendar}>
       <div className={s.calTitle}>
-        {wedding.month} <span>{wedding.year}</span>
+        {ev.month} <span>{ev.year}</span>
       </div>
       <div className={s.calGrid}>
         {['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'].map((d) => (
@@ -86,9 +85,9 @@ function Calendar() {
           </div>
         ))}
         {cells.map((d, i) => (
-          <div key={i} className={d === wedding.day ? s.calDayActive : s.calDay}>
+          <div key={i} className={d === ev.day ? s.calDayActive : s.calDay}>
             {d}
-            {d === wedding.day && (
+            {d === ev.day && (
               <svg className={s.calCircle} viewBox="0 0 60 60" aria-hidden="true">
                 <path d="M31 6 C48 5 56 18 55 31 C54 45 42 55 29 54 C15 53 5 43 6 29 C7 16 17 8 33 9" />
               </svg>
@@ -100,8 +99,8 @@ function Calendar() {
   );
 }
 
-function Countdown() {
-  const target = new Date(wedding.date).getTime();
+function Countdown({ ev }) {
+  const target = new Date(ev.date).getTime();
   const [now, setNow] = useState(null);
   useEffect(() => {
     const tick = () => setNow(Date.now());
@@ -137,7 +136,7 @@ function Countdown() {
   );
 }
 
-function Rsvp({ guest }) {
+function Rsvp({ guest, question }) {
   const [answer, setAnswer] = useState(guest.rsvp);
   const [busy, setBusy] = useState(false);
 
@@ -158,7 +157,7 @@ function Rsvp({ guest }) {
   return (
     <section className={`${s.section} ${s.reveal}`} data-reveal>
       <p className={s.kicker}>Javobingiz</p>
-      <h2 className={s.h2}>To‘yimizga kela olasizmi?</h2>
+      <h2 className={s.h2}>{question}</h2>
       <div className={s.buttons}>
         <button className={answer === 'yes' ? s.btnActive : s.btn} disabled={busy} onClick={() => send('yes')}>
           Albatta boraman
@@ -191,7 +190,9 @@ function MusicButton({ playing, onClick }) {
   );
 }
 
-export default function Invitation({ guest, musicSrc }) {
+export default function Invitation({ guest, eventKey, musicSrc }) {
+  const ev = getEvent(eventKey);
+  const { venue } = ev;
   const [opened, setOpened] = useState(false);
   const music = useMusic(musicSrc);
   useReveal(opened);
@@ -213,9 +214,9 @@ export default function Invitation({ guest, musicSrc }) {
         <div className={s.coverContent}>
           <p className={s.kicker}>Taklifnoma</p>
           <div className={s.monogram}>
-            <span>{initial(wedding.groom)}</span>
+            <span>{initial(ev.groom)}</span>
             <i />
-            <span>{initial(wedding.bride)}</span>
+            <span>{initial(ev.bride)}</span>
           </div>
           {guest && (
             <p className={s.coverGuest}>
@@ -231,44 +232,46 @@ export default function Invitation({ guest, musicSrc }) {
       <main className={`${s.main} ${opened ? s.opened : ''}`}>
         <section className={s.hero}>
           <Rings />
-          <p className={s.kicker}>Nikoh to‘yi</p>
+          <p className={s.kicker}>{ev.kicker}</p>
           <h1 className={s.names}>
-            <span>{wedding.groom}</span>
+            <span>{ev.groom}</span>
             <span className={s.amp}>&amp;</span>
-            <span>{wedding.bride}</span>
+            <span>{ev.bride}</span>
           </h1>
-          <p className={s.heroDate}>{wedding.dateShort}</p>
+          <p className={s.heroDate}>{ev.dateShort}</p>
           <div className={s.scrollHint} aria-hidden="true" />
         </section>
 
         <section className={`${s.section} ${s.reveal}`} data-reveal>
-          <p className={s.kicker}>{wedding.greeting}</p>
+          <p className={s.kicker}>{ev.greeting}</p>
           <h2 className={s.guestName}>{guest ? `Hurmatli ${guest.name}!` : 'Aziz mehmonlar!'}</h2>
-          <p className={s.lead}>{wedding.invitation}</p>
+          <p className={s.lead}>{ev.invitation}</p>
         </section>
 
         <div className={s.divider} />
 
         <section className={`${s.section} ${s.reveal}`} data-reveal>
           <p className={s.kicker}>Sana va vaqt</p>
-          <Calendar />
+          <Calendar ev={ev} />
           <p className={s.when}>
-            {wedding.weekday} <b>·</b> soat {wedding.time}
+            {ev.weekday} <b>·</b> soat {ev.time}
           </p>
         </section>
 
         <section className={`${s.section} ${s.sectionTint} ${s.reveal}`} data-reveal>
-          <p className={s.kicker}>To‘yga qadar</p>
-          <Countdown />
+          <p className={s.kicker}>{ev.countdownLabel}</p>
+          <Countdown ev={ev} />
         </section>
 
         <section className={`${s.section} ${s.reveal}`} data-reveal>
           <p className={s.kicker}>Manzil</p>
           <h2 className={s.h2}>{venue.name}</h2>
-          <p className={s.sub}>{venue.city}</p>
-          <div className={s.photo}>
-            <Image src={venuePhoto} alt={venue.name} placeholder="blur" sizes="(max-width: 640px) 100vw, 600px" />
-          </div>
+          <p className={s.sub}>{venue.address || venue.city}</p>
+          {ev.photo && (
+            <div className={s.photo}>
+              <Image src={venuePhoto} alt={venue.name} placeholder="blur" sizes="(max-width: 640px) 100vw, 600px" />
+            </div>
+          )}
           <div className={s.buttons}>
             <a className={s.btn} href={venue.google} target="_blank" rel="noopener noreferrer">
               Google Maps
@@ -282,21 +285,21 @@ export default function Invitation({ guest, musicSrc }) {
         {guest && (
           <>
             <div className={s.divider} />
-            <Rsvp guest={guest} />
+            <Rsvp guest={guest} question={ev.rsvpQuestion} />
           </>
         )}
 
         <section className={`${s.section} ${s.closing} ${s.reveal}`} data-reveal>
           <p className={s.lead}>Sizni intizorlik bilan kutib qolamiz</p>
           <p className={s.kicker}>Hurmat bilan</p>
-          <p className={s.family}>{wedding.family}</p>
-          <a className={s.link} href="/api/calendar">
+          <p className={s.family}>{ev.family}</p>
+          <a className={s.link} href={`/api/calendar?event=${ev.key}`}>
             Taqvimga qo‘shish
           </a>
         </section>
 
         <footer className={s.footer}>
-          {initial(wedding.groom)} &amp; {initial(wedding.bride)} · {wedding.year}
+          {initial(ev.groom)} &amp; {initial(ev.bride)} · {ev.year}
         </footer>
       </main>
 
