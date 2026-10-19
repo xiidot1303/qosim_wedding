@@ -376,6 +376,9 @@
 }
 
 @media (max-width: 560px) {
+  .tabs {
+    flex-direction: column;
+  }
   .stats {
     grid-template-columns: repeat(2, 1fr);
   }

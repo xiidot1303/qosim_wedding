@@ -130,6 +130,23 @@ export default function Admin() {
     }
   };
 
+  // Moves a guest between the 08:00 and 10:00 nahor oshi; their link stays the same.
+  const otherNahor = (key) => (key === 'nahor' ? 'nahor8' : key === 'nahor8' ? 'nahor' : null);
+  const move = async (guest) => {
+    const to = otherNahor(guest.event);
+    try {
+      await api(`/api/admin/guests/${guest.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event: to }),
+      });
+      flash(`«${guest.name}» → ${events[to].label}`);
+      await load();
+    } catch (e) {
+      report(e);
+    }
+  };
+
   const remove = async (guest) => {
     if (!confirm(`«${guest.name}» o‘chirilsinmi? Uning havolasi ishlamay qoladi.`)) return;
     try {
@@ -334,6 +351,11 @@ export default function Admin() {
                 <button onClick={() => setPreview(g)}>Karta</button>
                 <a href={`/api/card/${g.id}?download`}>PNG</a>
                 <button onClick={() => copy(g)}>Havola</button>
+                {otherNahor(g.event) && (
+                  <button onClick={() => move(g)} title="Boshqa vaqtga o‘tkazish (havola o‘zgarmaydi)">
+                    → {events[otherNahor(g.event)].time}
+                  </button>
+                )}
                 <button onClick={() => sendTelegram(g)} disabled={sending !== null} className={s.send}>
                   {sending === g.id ? 'Yuborilmoqda…' : 'Telegram'}
                 </button>

@@ -2,11 +2,11 @@ import { getEvent } from '@/lib/config';
 
 const stamp = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 
-// ?event=toy (default) or ?event=nahor
+// ?event=toy (default), nahor8 or nahor
 export function GET(request) {
   const ev = getEvent(request.nextUrl.searchParams.get('event'));
   const start = new Date(ev.date);
-  const end = new Date(start.getTime() + (ev.key === 'nahor' ? 3 : 5) * 60 * 60 * 1000);
+  const end = new Date(start.getTime() + (ev.key.startsWith('nahor') ? 3 : 5) * 60 * 60 * 1000);
   const { venue } = ev;
   const title = ev.title ? `${ev.title} — ${ev.groom} & ${ev.bride}` : `${ev.groom} & ${ev.bride} — nikoh to‘yi`;
   const ics = [
